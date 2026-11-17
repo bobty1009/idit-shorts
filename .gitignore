@@ -1,0 +1,10 @@
+node_modules/
+out/
+public/voices/
+dist/
+.remotion/
+.DS_Store
+*.log
+batches/current.json
+.env
+.env.*

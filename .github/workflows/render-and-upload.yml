@@ -1,0 +1,103 @@
+name: render-and-upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_b64:
+        description: "Base64-encoded batch JSON (from add-explain-video)"
+        required: true
+        type: string
+      privacy:
+        description: "YouTube privacy"
+        required: false
+        default: unlisted
+        type: choice
+        options:
+          - unlisted
+          - public
+          - private
+      skip_upload:
+        description: "Skip YouTube upload (render only)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chrome for Remotion
+        run: npx remotion browser ensure
+
+      - name: Decode batch JSON
+        env:
+          BATCH_B64: ${{ inputs.batch_b64 }}
+          PRIVACY: ${{ inputs.privacy }}
+        run: |
+          mkdir -p batches out
+          printf '%s' "$BATCH_B64" | base64 --decode > batches/current.json
+          node -e "
+            const fs=require('fs');
+            const b=JSON.parse(fs.readFileSync('batches/current.json','utf8'));
+            b.privacy=process.env.PRIVACY || b.privacy || 'unlisted';
+            fs.writeFileSync('batches/current.json', JSON.stringify(b,null,2));
+            console.log('items', b.items.length);
+          "
+
+      - name: Start VOICEVOX Engine
+        run: |
+          docker run -d --name voicevox -p 50021:50021 voicevox/voicevox_engine:cpu-latest
+          for i in $(seq 1 90); do
+            if curl -sf http://127.0.0.1:50021/version >/dev/null; then
+              echo "VOICEVOX ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "VOICEVOX failed to start"
+          docker logs voicevox || true
+          exit 1
+
+      - name: Render and upload
+        env:
+          VOICEVOX_HOST: http://127.0.0.1:50021
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          SKIP_UPLOAD: ${{ inputs.skip_upload == 'true' && '1' || '0' }}
+        run: npm run batch -- batches/current.json
+
+      - name: Stop VOICEVOX
+        if: always()
+        run: docker rm -f voicevox || true
+
+      - name: Upload summary artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: batch-summary
+          path: |
+            out/summary.json
+            out/*.upload.json
+            out/*.mp4
+          if-no-files-found: warn
+          retention-days: 7
