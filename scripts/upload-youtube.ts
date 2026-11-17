@@ -25,9 +25,16 @@ export async function uploadYoutube(opts: {
   oauth2.setCredentials({ refresh_token: refreshToken });
   const youtube = google.youtube({ version: "v3", auth: oauth2 });
 
-  const description = opts.item.youtube.description.includes("VOICEVOX")
-    ? opts.item.youtube.description
-    : `${opts.item.youtube.description.trim()}\n\nVOICEVOX:ずんだもん`;
+  const AI_DISCLAIMER =
+    "内容はAIを使用して生成しているため正しくない情報が含まれる場合があります。";
+  const VOICE_CREDIT = "VOICEVOX:ずんだもん";
+  let description = opts.item.youtube.description.trim();
+  if (!description.includes(AI_DISCLAIMER)) {
+    description = `${description}\n\n${AI_DISCLAIMER}`;
+  }
+  if (!description.includes("VOICEVOX")) {
+    description = `${description}\n\n${VOICE_CREDIT}`;
+  }
 
   const res = await youtube.videos.insert({
     part: ["snippet", "status"],
@@ -59,7 +66,7 @@ export async function uploadYoutube(opts: {
 async function main() {
   const videoPath = process.argv[2];
   const itemPath = process.argv[3];
-  const privacy = (process.argv[4] ?? "unlisted") as
+  const privacy = (process.argv[4] ?? "private") as
     | "public"
     | "unlisted"
     | "private";
