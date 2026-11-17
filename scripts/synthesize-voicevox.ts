@@ -92,7 +92,9 @@ async function main() {
   console.log(JSON.stringify(result));
 }
 
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("synthesize-voicevox.ts")) {
+const invokedDirectly =
+  !!process.argv[1] && path.resolve(process.argv[1]).endsWith("synthesize-voicevox.ts");
+if (invokedDirectly) {
   main().catch((err) => {
     console.error(err);
     process.exit(1);
