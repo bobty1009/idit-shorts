@@ -105,5 +105,6 @@ jobs:
             out/summary.json
             out/*.upload.json
             out/*.mp4
+            out/*.thumb.png
           if-no-files-found: warn
           retention-days: 7

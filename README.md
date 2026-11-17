@@ -44,6 +44,21 @@ gh workflow run render-and-upload.yml \
 ```
 
 完了後 artifact `batch-summary` の `out/summary.json` に URL が入る。
+サムネは冒頭タイトルスライドを `remotion still` で切り出し、`thumbnails.set` で投稿する。
+
+### カスタムサムネの前提
+
+YouTube のカスタムサムネは **チャンネル認証（電話番号など）済み** が必要。
+未認証だと動画投稿は成功し、`thumbnailSet: false` と警告だけ残る。
+Studio で手動設定するか、[YouTube Studio → 設定 → チャンネル → 機能の利用資格](https://studio.youtube.com/) で認証する。
+
+## バッチ JSON の term
+
+| フィールド | 用途 |
+|---|---|
+| `term` | 冒頭・サムネに大きく出す用語（例: `COMMIT`） |
+| `term_ja` | 任意の日本語併記（例: `コミット`） |
+| `type_title` | 用語の下に出すキャッチタイトル |
 
 ## VOICEVOX クレジット
 

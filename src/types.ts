@@ -14,6 +14,10 @@ export type BatchItem = {
   slug: string;
   vault_path?: string;
   type_title: string;
+  /** サムネ／冒頭に大きく出す用語（例: COMMIT / トランザクション） */
+  term?: string;
+  /** 用語の日本語併記（任意。term が英字のときなど） */
+  term_ja?: string;
   voice?: string;
   target_sec?: number;
   slides: Slide[];

@@ -1,14 +1,16 @@
 import React from "react";
 import { Composition } from "remotion";
 import { ExplainShort, type ExplainShortProps } from "./ExplainShort";
+import { INTRO_FRAMES } from "./constants";
 
 const defaultProps: ExplainShortProps = {
-  typeTitle: "Sample",
+  typeTitle: "保存ボタンのDB版？COMMIT（コミット）",
+  term: "COMMIT",
+  termJa: "コミット",
   slides: [
     {
-      title: "サンプル",
-      bullets: ["スライド1", "プレビュー用"],
-      visual: "プレースホルダ",
+      title: "コミットは確定の合図",
+      bullets: ["セットにした変更を正式な結果として残す", "他の人もその結果を見られる"],
     },
   ],
   audioFile: "silence.wav",
@@ -27,10 +29,9 @@ export const RemotionRoot: React.FC = () => {
         height={1920}
         defaultProps={defaultProps}
         calculateMetadata={async ({ props }) => {
-          const intro = 36;
           const body = props.slideDurationsInFrames.reduce((a, b) => a + b, 0);
           return {
-            durationInFrames: Math.max(intro + body, 60),
+            durationInFrames: Math.max(INTRO_FRAMES + body, 60),
           };
         }}
       />

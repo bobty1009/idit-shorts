@@ -5,6 +5,7 @@
       "slug": "transaction",
       "vault_path": "content/dev/data/transaction/transaction.md",
       "type_title": "途中で落ちると危険？トランザクションの正体",
+      "term": "トランザクション",
       "voice": "zundamon",
       "target_sec": 45,
       "slides": [
