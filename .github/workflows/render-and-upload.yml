@@ -10,12 +10,12 @@ on:
       privacy:
         description: "YouTube privacy"
         required: false
-        default: unlisted
+        default: private
         type: choice
         options:
+          - private
           - unlisted
           - public
-          - private
       skip_upload:
         description: "Skip YouTube upload (render only)"
         required: false

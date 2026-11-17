@@ -39,7 +39,7 @@ vault 側 skill がバッチ JSON を base64 して起動する:
 BATCH_B64=$(base64 < batches/example.json | tr -d '\n')
 gh workflow run render-and-upload.yml \
   -f batch_b64="$BATCH_B64" \
-  -f privacy=unlisted \
+  -f privacy=private \
   -f skip_upload=false
 ```
 
