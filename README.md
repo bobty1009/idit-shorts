@@ -6,6 +6,13 @@
 - MP4 はランナー一時ディスクのみ → YouTube が正本
 - 資格情報は GitHub Secrets のみ（コードに置かない）
 
+## OAuth / ブランディング用 URL
+
+| 用途 | URL |
+|---|---|
+| ホームページ | https://github.com/bobty1009/idit-shorts |
+| プライバシーポリシー | https://github.com/bobty1009/idit-shorts/blob/main/docs/privacy.md |
+
 ## 必要な Secrets
 
 | Name | 内容 |
