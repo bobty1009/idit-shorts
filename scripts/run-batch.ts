@@ -6,11 +6,17 @@ import { uploadYoutube } from "./upload-youtube";
 import type { Batch, BatchItem } from "../src/types";
 
 const FPS = 30;
+/** Shorts 平均尺の目安。音声が短い場合も最低この秒数までスライドを伸ばす */
+const MIN_TARGET_SEC = 48;
+const INTRO_SEC = 2.0;
 
-function splitDuration(totalSec: number, slideCount: number): number[] {
-  const usable = Math.max(totalSec - 1.2, slideCount * 2);
+function splitDuration(audioSec: number, slideCount: number, targetSec?: number): number[] {
+  const goal = Math.max(audioSec, targetSec ?? MIN_TARGET_SEC, MIN_TARGET_SEC);
+  const usable = Math.max(goal - INTRO_SEC, slideCount * 3);
   const each = usable / slideCount;
-  return Array.from({ length: slideCount }, () => Math.max(Math.round(each * FPS), FPS * 2));
+  return Array.from({ length: slideCount }, () =>
+    Math.max(Math.round(each * FPS), FPS * 3),
+  );
 }
 
 async function processItem(
@@ -24,7 +30,11 @@ async function processItem(
 
   console.log(`==> synthesize ${item.slug}`);
   const { audioFile, durationSec } = await synthesizeItem(item, publicDir);
-  const slideDurationsInFrames = splitDuration(durationSec, item.slides.length);
+  const slideDurationsInFrames = splitDuration(
+    durationSec,
+    item.slides.length,
+    item.target_sec,
+  );
   const props = {
     typeTitle: item.type_title,
     slides: item.slides,
@@ -62,7 +72,7 @@ async function main() {
   const batchPath = process.argv[2] ?? "batches/current.json";
   const skipUpload = process.env.SKIP_UPLOAD === "1";
   const batch = JSON.parse(fs.readFileSync(batchPath, "utf8")) as Batch;
-  const privacy = batch.privacy ?? "unlisted";
+  const privacy = batch.privacy ?? "private";
   const results = [];
   for (const item of batch.items) {
     results.push(await processItem(item, privacy, skipUpload));

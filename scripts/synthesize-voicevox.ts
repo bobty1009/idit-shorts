@@ -27,9 +27,10 @@ async function synthesize(text: string, speaker: number, outPath: string) {
     throw new Error(`audio_query failed: ${queryRes.status} ${await queryRes.text()}`);
   }
   const query = await queryRes.json();
-  query.prePhonemeLength = 0;
-  query.postPhonemeLength = 0.15;
-  query.speedScale = 1.0;
+  query.prePhonemeLength = 0.05;
+  query.postPhonemeLength = 0.2;
+  // ややゆっくり。台本を厚くしたうえで ~50秒前後を狙う
+  query.speedScale = 0.92;
 
   const synthRes = await fetch(`${HOST}/synthesis?speaker=${speaker}`, {
     method: "POST",
