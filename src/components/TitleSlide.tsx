@@ -6,12 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import {
-  ACCENT,
-  FONT_STACK,
-  MUTED,
-  TEXT,
-} from "../constants";
+import { ACCENT, FONT_STACK, MUTED, SAFE, TEXT } from "../constants";
 import { Background } from "./Background";
 
 export type TitleSlideProps = {
@@ -26,7 +21,6 @@ function hookLine(typeTitle: string, term: string, termJa?: string): string {
   if (termJa) {
     h = h.replace(`（${termJa}）`, "").replace(termJa, "");
   }
-  // 長い term から先に消す
   const parts = [term, term.toLowerCase(), term.toUpperCase()].filter(Boolean);
   for (const p of parts) {
     h = h.split(p).join("");
@@ -37,7 +31,7 @@ function hookLine(typeTitle: string, term: string, termJa?: string): string {
 
 /**
  * サムネ兼用の冒頭スライド。
- * 用語を最大級で置き、キャッチタイトルをその下に置く。
+ * UI セーフゾーン内で用語を大きく中央配置する。
  */
 export const TitleSlide: React.FC<TitleSlideProps> = ({
   term,
@@ -58,7 +52,7 @@ export const TitleSlide: React.FC<TitleSlideProps> = ({
     fps,
     config: { damping: 14, stiffness: 90 },
   });
-  const barW = interpolate(frame, [10, 28], [0, 280], {
+  const barW = interpolate(frame, [10, 28], [0, 240], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
@@ -72,7 +66,7 @@ export const TitleSlide: React.FC<TitleSlideProps> = ({
   });
 
   const termSize =
-    term.length <= 6 ? 132 : term.length <= 10 ? 104 : term.length <= 14 ? 88 : 72;
+    term.length <= 6 ? 118 : term.length <= 10 ? 96 : term.length <= 14 ? 80 : 68;
 
   return (
     <AbsoluteFill style={{ fontFamily: FONT_STACK, color: TEXT }}>
@@ -81,98 +75,102 @@ export const TitleSlide: React.FC<TitleSlideProps> = ({
         style={{
           justifyContent: "center",
           alignItems: "center",
-          padding: "0 64px",
+          paddingTop: SAFE.top,
+          paddingBottom: SAFE.bottom,
+          paddingLeft: SAFE.left,
+          paddingRight: SAFE.right,
           textAlign: "center",
         }}
       >
-        <div
-          style={{
-            opacity: brandIn,
-            transform: `translateY(${(1 - brandIn) * 16}px)`,
-            marginBottom: 48,
-          }}
-        >
+        <div style={{ width: "100%", maxWidth: SAFE.maxWidth }}>
           <div
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 12,
-              padding: "12px 28px",
-              borderRadius: 999,
-              border: `1.5px solid ${ACCENT}`,
-              background: "rgba(56,189,248,0.1)",
-              color: ACCENT,
-              fontSize: 28,
-              letterSpacing: 3,
-              fontWeight: 600,
+              opacity: brandIn,
+              transform: `translateY(${(1 - brandIn) * 16}px)`,
+              marginBottom: 40,
             }}
           >
-            IDIT Knowledge
-          </div>
-        </div>
-
-        <div
-          style={{
-            opacity: termIn,
-            transform: `scale(${0.86 + termIn * 0.14}) translateY(${(1 - termIn) * 28}px)`,
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: termSize,
-              fontWeight: 800,
-              lineHeight: 1.05,
-              letterSpacing: term.length <= 8 ? 6 : 2,
-              wordBreak: "keep-all",
-              overflowWrap: "anywhere",
-              textShadow: "0 0 48px rgba(56,189,248,0.35)",
-            }}
-          >
-            {term}
-          </h1>
-          {termJa ? (
             <div
               style={{
-                marginTop: 18,
-                fontSize: 44,
-                color: MUTED,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 26px",
+                borderRadius: 999,
+                border: `1.5px solid ${ACCENT}`,
+                background: "rgba(56,189,248,0.1)",
+                color: ACCENT,
+                fontSize: 26,
+                letterSpacing: 3,
                 fontWeight: 600,
-                letterSpacing: 4,
               }}
             >
-              {termJa}
+              IDIT Knowledge
             </div>
-          ) : null}
+          </div>
+
+          <div
+            style={{
+              opacity: termIn,
+              transform: `scale(${0.88 + termIn * 0.12}) translateY(${(1 - termIn) * 24}px)`,
+            }}
+          >
+            <h1
+              style={{
+                margin: 0,
+                fontSize: termSize,
+                fontWeight: 800,
+                lineHeight: 1.08,
+                letterSpacing: term.length <= 8 ? 5 : 2,
+                wordBreak: "keep-all",
+                overflowWrap: "anywhere",
+                textShadow: "0 0 48px rgba(56,189,248,0.35)",
+              }}
+            >
+              {term}
+            </h1>
+            {termJa ? (
+              <div
+                style={{
+                  marginTop: 16,
+                  fontSize: 40,
+                  color: MUTED,
+                  fontWeight: 600,
+                  letterSpacing: 4,
+                }}
+              >
+                {termJa}
+              </div>
+            ) : null}
+          </div>
+
+          <div
+            style={{
+              width: barW,
+              height: 5,
+              borderRadius: 4,
+              background: `linear-gradient(90deg, ${ACCENT}, #818cf8)`,
+              margin: "36px auto 32px",
+              boxShadow: `0 0 24px ${ACCENT}`,
+            }}
+          />
+
+          <p
+            style={{
+              margin: 0,
+              fontSize: 38,
+              lineHeight: 1.45,
+              fontWeight: 600,
+              color: TEXT,
+              opacity: subOpacity,
+              transform: `translateY(${subY}px)`,
+              wordBreak: "keep-all",
+              overflowWrap: "anywhere",
+            }}
+          >
+            {hook}
+          </p>
         </div>
-
-        <div
-          style={{
-            width: barW,
-            height: 5,
-            borderRadius: 4,
-            background: `linear-gradient(90deg, ${ACCENT}, #818cf8)`,
-            margin: "40px auto 36px",
-            boxShadow: `0 0 24px ${ACCENT}`,
-          }}
-        />
-
-        <p
-          style={{
-            margin: 0,
-            maxWidth: 920,
-            fontSize: 40,
-            lineHeight: 1.45,
-            fontWeight: 600,
-            color: TEXT,
-            opacity: subOpacity,
-            transform: `translateY(${subY}px)`,
-            wordBreak: "keep-all",
-            overflowWrap: "anywhere",
-          }}
-        >
-          {hook}
-        </p>
       </AbsoluteFill>
     </AbsoluteFill>
   );

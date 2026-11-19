@@ -1,6 +1,9 @@
 export type Slide = {
   title: string;
-  bullets: string[];
+  /** 画面本文（段落）。推奨。参考 Short と同じ「説明文」スタイル */
+  body?: string;
+  /** 後方互換。body が無いとき結合して段落表示する */
+  bullets?: string[];
   visual?: string;
 };
 

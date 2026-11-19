@@ -10,7 +10,7 @@ const defaultProps: ExplainShortProps = {
   slides: [
     {
       title: "コミットは確定の合図",
-      bullets: ["セットにした変更を正式な結果として残す", "他の人もその結果を見られる"],
+      body: "セットにした変更を正式な結果として残し、他の人からも見えるようにします。いわば、データベースにおける保存ボタンです。",
     },
   ],
   audioFile: "silence.wav",
